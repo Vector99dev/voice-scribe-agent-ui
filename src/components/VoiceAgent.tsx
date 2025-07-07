@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
+import { ChatInput } from './ChatInput';
 
 interface Message {
   id: string;
@@ -19,6 +20,7 @@ export const VoiceAgent = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [isMicEnabled, setIsMicEnabled] = useState(true);
   
   const recognitionRef = useRef<any | null>(null);
   const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -51,8 +53,8 @@ export const VoiceAgent = () => {
 
       recognition.onend = () => {
         setIsListening(false);
-        if (!isProcessing) {
-          // Restart listening automatically
+        if (!isProcessing && isMicEnabled) {
+          // Restart listening automatically only if mic is enabled
           setTimeout(() => recognition.start(), 100);
         }
       };
@@ -65,13 +67,15 @@ export const VoiceAgent = () => {
       recognitionRef.current = recognition;
       
       // Start listening automatically
-      recognition.start();
+      if (isMicEnabled) {
+        recognition.start();
+      }
 
       return () => {
         recognition.stop();
       };
     }
-  }, []);
+  }, [isMicEnabled]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,15 +168,29 @@ export const VoiceAgent = () => {
     window.speechSynthesis.speak(utterance);
   };
 
-  const toggleAudio = () => {
-    setIsAudioEnabled(!isAudioEnabled);
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
+  const toggleMic = () => {
+    const newMicState = !isMicEnabled;
+    setIsMicEnabled(newMicState);
+    
+    if (recognitionRef.current) {
+      if (newMicState) {
+        // Enable mic - start listening
+        recognitionRef.current.start();
+      } else {
+        // Disable mic - stop listening
+        recognitionRef.current.stop();
+        setIsListening(false);
+        setCurrentTranscript('');
+      }
     }
   };
 
+  const handleChatInput = (message: string) => {
+    handleUserInput(message);
+  };
+
   const getVoiceIndicatorClass = () => {
+    if (!isMicEnabled) return 'bg-voice-muted';
     if (isProcessing) return 'bg-voice-processing shadow-voice animate-pulse';
     if (isListening) return 'bg-voice-listening shadow-voice animate-pulse';
     if (isSpeaking) return 'bg-voice-active shadow-voice animate-pulse';
@@ -191,13 +209,13 @@ export const VoiceAgent = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={toggleAudio}
+              onClick={toggleMic}
               className={cn(
                 "transition-colors",
-                isAudioEnabled ? "text-voice-active" : "text-voice-muted"
+                isMicEnabled ? "text-voice-active" : "text-voice-muted"
               )}
             >
-              {isAudioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {isMicEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
             </Button>
             <ThemeToggle />
           </div>
@@ -214,14 +232,18 @@ export const VoiceAgent = () => {
                 "w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300",
                 getVoiceIndicatorClass()
               )}>
-                {isListening ? (
-                  <Mic className="h-12 w-12 text-white" />
+                {isMicEnabled ? (
+                  isListening ? (
+                    <Mic className="h-12 w-12 text-white" />
+                  ) : (
+                    <Mic className="h-12 w-12 text-white opacity-70" />
+                  )
                 ) : (
                   <MicOff className="h-12 w-12 text-white" />
                 )}
               </div>
               {/* Pulse rings */}
-              {(isListening || isSpeaking || isProcessing) && (
+              {isMicEnabled && (isListening || isSpeaking || isProcessing) && (
                 <>
                   <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
                   <div className="absolute inset-2 rounded-full bg-primary/10 animate-ping animation-delay-75" />
@@ -233,12 +255,13 @@ export const VoiceAgent = () => {
           {/* Status Text */}
           <div className="text-center mb-8">
             <p className="text-lg font-medium text-foreground">
-              {isProcessing ? 'Processing...' :
+              {!isMicEnabled ? 'Type mode - Mic disabled' :
+               isProcessing ? 'Processing...' :
                isListening ? 'Listening...' :
                isSpeaking ? 'Speaking...' :
                'Ready to help'}
             </p>
-            {currentTranscript && (
+            {currentTranscript && isMicEnabled && (
               <p className="text-sm text-muted-foreground mt-2">
                 "{currentTranscript}"
               </p>
@@ -278,6 +301,16 @@ export const VoiceAgent = () => {
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Chat Input - appears when mic is disabled */}
+          {!isMicEnabled && (
+            <div className="mt-6">
+              <ChatInput 
+                onSendMessage={handleChatInput}
+                disabled={isProcessing}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -285,7 +318,10 @@ export const VoiceAgent = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-md border-t border-border p-4">
         <div className="container mx-auto text-center">
           <p className="text-sm text-muted-foreground">
-            🎤 Speak naturally - I'm always listening and ready to help with your real estate needs!
+            {isMicEnabled 
+              ? "🎤 Speak naturally - I'm always listening and ready to help with your real estate needs!"
+              : "💬 Type your message using the input above or click the mic button to enable voice mode"
+            }
           </p>
         </div>
       </div>

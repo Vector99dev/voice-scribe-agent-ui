@@ -15,9 +15,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 268 83% 58%;
+    --primary: 200 100% 70%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 268 100% 75%;
+    --primary-glow: 200 100% 85%;
 
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
@@ -25,7 +25,7 @@
     --muted: 220 14.3% 95.9%;
     --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 268 83% 58%;
+    --accent: 200 100% 70%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -33,10 +33,10 @@
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 268 83% 58%;
+    --ring: 200 100% 70%;
 
     /* Voice AI specific colors */
-    --voice-active: 268 83% 58%;
+    --voice-active: 200 100% 70%;
     --voice-listening: 142 71% 45%;
     --voice-processing: 45 93% 47%;
     --voice-muted: 220 8.9% 46.1%;
@@ -80,9 +80,9 @@
     --popover: 13 6% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 268 83% 58%;
+    --primary: 200 100% 70%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 268 100% 75%;
+    --primary-glow: 200 100% 85%;
 
     --secondary: 13 6% 15%;
     --secondary-foreground: 210 40% 98%;
@@ -90,7 +90,7 @@
     --muted: 13 6% 15%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 268 83% 58%;
+    --accent: 200 100% 70%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -98,10 +98,10 @@
 
     --border: 13 6% 20%;
     --input: 13 6% 20%;
-    --ring: 268 83% 58%;
+    --ring: 200 100% 70%;
 
     /* Voice AI specific colors for dark mode */
-    --voice-active: 268 83% 58%;
+    --voice-active: 200 100% 70%;
     --voice-listening: 142 71% 45%;
     --voice-processing: 45 93% 47%;
     --voice-muted: 215 20.2% 65.1%;
